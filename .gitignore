@@ -26,3 +26,6 @@ packages/
 # OS
 Thumbs.db
 Desktop.ini
+
+# Installers
+installers/
