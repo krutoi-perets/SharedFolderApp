@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../SharedFolderApp.Shared/SharedFolderApp.Shared.csproj" />
+  <Project Path="SharedFolderApp.Server.csproj" />
+</Solution>

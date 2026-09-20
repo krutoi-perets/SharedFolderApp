@@ -1,0 +1,28 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Build
+[Bb]in/
+[Oo]bj/
+
+# Publish
+publish/
+
+# Rider / ReSharper
+.idea/
+_ReSharper*/
+*.DotSettings.user
+
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+
+# Logs
+*.log
+
+# OS
+Thumbs.db
+Desktop.ini

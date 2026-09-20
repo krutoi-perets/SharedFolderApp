@@ -1,0 +1,25 @@
+﻿<Window x:Class="SharedFolderApp.Client.Views.TextViewWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SharedFolderApp.Client.Views"
+        xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+        mc:Ignorable="d"
+        Title="&lt;fileName&gt;" Height="500" Width="700">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        
+        <avalonEdit:TextEditor Name="textField" Grid.Row="0" ShowLineNumbers="True"
+                               FontFamily="Consolas" FontSize="14" IsReadOnly="True"
+                               VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+        <StatusBar Grid.Row="1" HorizontalAlignment="Right" Background="White">
+            <StatusBarItem Name="line" Width="Auto" Content="Line: 1" HorizontalAlignment="Right"/>
+            <Separator Background="LightGray"/>
+            <StatusBarItem Name="column" Width="Auto" Content="Column: 1" HorizontalAlignment="Right"/>
+        </StatusBar>
+    </Grid>
+</Window>
