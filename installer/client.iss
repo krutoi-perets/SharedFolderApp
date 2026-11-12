@@ -10,6 +10,8 @@ AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 
 DefaultDirName={autopf}\SharedFolderApp\Client
+DisableDirPage=no
+UsePreviousAppDir=no
 DefaultGroupName=SharedFolderApp Client
 
 OutputDir=..\installers
