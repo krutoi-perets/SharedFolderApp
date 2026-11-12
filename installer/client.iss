@@ -1,5 +1,5 @@
 #define MyAppName "SharedFolderApp Client"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.0.1"
 #define MyAppPublisher "Vlad"
 #define MyAppExeName "SharedFolderApp.Client.exe"
 

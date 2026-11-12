@@ -133,6 +133,7 @@ namespace SharedFolderApp.Client.Services
             }
         }
 
+
         public async Task UploadFileAsync(
             string fromPath,
             string toPath,
@@ -144,26 +145,16 @@ namespace SharedFolderApp.Client.Services
 
             await using var stream = File.OpenRead(fromPath);
 
-            if (stream.Length == 0)
-            {
-                using var content = new ByteArrayContent(Array.Empty<byte>());
-
-                var response = await _httpClient.PostAsync(
-                    $"api/files/uploadChunk" +
-                    $"?path={Uri.EscapeDataString(toPath)}" +
-                    $"&fileName={Uri.EscapeDataString(fileName)}" +
-                    $"&chunkNumber=0",
-                    content);
-
-                response.EnsureSuccessStatusCode();
-
-                progress?.Report(100);
-                return;
-            }
+            int totalChunks = (int)Math.Ceiling(
+                (double)stream.Length / chunkSize);
 
             byte[] buffer = new byte[chunkSize];
             int chunkNumber = 0;
             long uploadedBytes = 0;
+
+            // Даже пустой файл отправляем одним чанком
+            if (totalChunks == 0)
+                totalChunks = 1;
 
             while (true)
             {
@@ -172,7 +163,7 @@ namespace SharedFolderApp.Client.Services
                     0,
                     buffer.Length);
 
-                if (bytesRead == 0)
+                if (bytesRead == 0 && stream.Length != 0)
                     break;
 
                 using var content = new ByteArrayContent(
@@ -184,19 +175,27 @@ namespace SharedFolderApp.Client.Services
                     $"api/files/uploadChunk" +
                     $"?path={Uri.EscapeDataString(toPath)}" +
                     $"&fileName={Uri.EscapeDataString(fileName)}" +
-                    $"&chunkNumber={chunkNumber}",
+                    $"&chunkNumber={chunkNumber}" +
+                    $"&totalChunks={totalChunks}",
                     content);
 
                 response.EnsureSuccessStatusCode();
 
                 uploadedBytes += bytesRead;
 
-                double percent = (double)uploadedBytes / stream.Length * 100;
+                double percent = stream.Length == 0
+                    ? 100
+                    : (double)uploadedBytes / stream.Length * 100;
+
                 progress?.Report(percent);
 
                 chunkNumber++;
+
+                if (uploadedBytes >= stream.Length)
+                    break;
             }
         }
+
 
         public async Task RenameAsync(string path, string newName)
         {

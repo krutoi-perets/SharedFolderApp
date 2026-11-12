@@ -1,5 +1,8 @@
 using SharedFolderApp.Server.Services;
 using System.Net.NetworkInformation;
+using System.Text;
+
+Console.OutputEncoding = Encoding.UTF8;
 
 var builder = WebApplication.CreateBuilder(args);
 

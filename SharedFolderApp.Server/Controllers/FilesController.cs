@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SharedFolderApp.Server.Logger;
 using SharedFolderApp.Server.Services;
 
 namespace SharedFolderApp.Server.Controllers
@@ -10,21 +11,17 @@ namespace SharedFolderApp.Server.Controllers
         private readonly FileService _fileService;
         private readonly ArchiveService _archiveService;
 
-        private readonly ILogger<FilesController> _logger;
-
         public FilesController(FileService fileService,
-                               ArchiveService archiveService,
-                               ILogger<FilesController> logger)
+                               ArchiveService archiveService)
         {
             _fileService = fileService;
             _archiveService = archiveService;
-            _logger = logger;
         }
 
         [HttpGet("status")]
         public IActionResult GetStatus()
         {
-            _logger.LogInformation("Клиент {IP} подключился", HttpContext.Connection.RemoteIpAddress);
+            ConsoleLogger.LogInfo($"Клиент {HttpContext.Connection.RemoteIpAddress} подключился");
 
             return Ok();
         }
@@ -32,7 +29,7 @@ namespace SharedFolderApp.Server.Controllers
         [HttpPost("disconnect")]
         public IActionResult Disconnect()
         {
-            _logger.LogInformation("Клиент {IP} отключился", HttpContext.Connection.RemoteIpAddress);
+            ConsoleLogger.LogInfo($"Клиент {HttpContext.Connection.RemoteIpAddress} отключился");
 
             return Ok();
         }
@@ -90,10 +87,14 @@ namespace SharedFolderApp.Server.Controllers
         public async Task<IActionResult> Upload(
             [FromQuery] string? path,
             [FromQuery] string fileName,
-            [FromQuery] int chunkNumber)
+            [FromQuery] int chunkNumber,
+            [FromQuery] int totalChunks)
         {
             if (string.IsNullOrWhiteSpace(fileName))
                 return BadRequest("File name is required");
+
+            if (totalChunks <= 0 || chunkNumber < 0 || chunkNumber >= totalChunks)
+                return BadRequest("Invalid chunk information");
 
             var filePath = string.IsNullOrWhiteSpace(path)
                 ? fileName
@@ -105,6 +106,12 @@ namespace SharedFolderApp.Server.Controllers
                     Request.Body,
                     filePath,
                     chunkNumber);
+
+                if (chunkNumber == totalChunks - 1)
+                {
+                    ConsoleLogger.LogInfo(
+                        $"Клиент {HttpContext.Connection.RemoteIpAddress} загрузил файл Server\\{path}\\{fileName}");
+                }
 
                 return Ok();
             }
@@ -123,6 +130,7 @@ namespace SharedFolderApp.Server.Controllers
             try
             {
                 _fileService.CreateDirectory(path);
+                ConsoleLogger.LogInfo($"Клиент {HttpContext.Connection.RemoteIpAddress} создал папку Server\\{path}");
                 return Ok();
             }
             catch (IOException)
@@ -140,6 +148,7 @@ namespace SharedFolderApp.Server.Controllers
             try
             {
                 _fileService.CreateFile(path);
+                ConsoleLogger.LogInfo($"Клиент {HttpContext.Connection.RemoteIpAddress} создал файл Server\\{path}");
                 return Ok();
             }
             catch (IOException)
@@ -154,6 +163,7 @@ namespace SharedFolderApp.Server.Controllers
             try
             {
                 _fileService.Rename(path, newName);
+                ConsoleLogger.LogInfo($"Клиент {HttpContext.Connection.RemoteIpAddress} переименовал Server\\{path} на {newName}");
                 return Ok();
             }
             catch (FileNotFoundException)
@@ -179,6 +189,7 @@ namespace SharedFolderApp.Server.Controllers
             if (!_fileService.Delete(path))
                 return NotFound("File or directory not found");
 
+            ConsoleLogger.LogInfo($"Клиент {HttpContext.Connection.RemoteIpAddress} удалил Server\\{path}");
             return Ok();
         }
     }
